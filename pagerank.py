@@ -95,13 +95,14 @@ def transition_model(corpus, page, damping_factor):
 
 def sample_pagerank(corpus, damping_factor, n):
     """
-    Return PageRank values for each page by sampling `n` pages
-    according to transition model, starting with a page at random.
+        eturn PageRank values for each page by sampling `n` pages
+        according to transition model, starting with a page at random.
 
-    Return a dictionary where keys are page names, and values are
-    their estimated PageRank value (a value between 0 and 1). All
-    PageRank values should sum to 1.
+        Return a dictionary where keys are page names, and values are
+        their estimated PageRank value (a value between 0 and 1). All
+        PageRank values should sum to 1.R
     """
+    
     pages = list(corpus.keys())
     counter = {}
     for page in pages:
@@ -125,39 +126,58 @@ def sample_pagerank(corpus, damping_factor, n):
 
 def iterate_pagerank(corpus, damping_factor):
     """
-    Return PageRank values for each page by iteratively updating
-    PageRank values until convergence.
+        Return PageRank values for each page by iteratively updating
+        PageRank values until convergence.
 
-    Return a dictionary where keys are page names, and values are
-    their estimated PageRank value (a value between 0 and 1). All
-    PageRank values should sum to 1.
+        Return a dictionary where keys are page names, and values are
+        their estimated PageRank value (a value between 0 and 1). All
+        PageRank values should sum to 1.
     """
+    
+    # Here's my pseudo-algo to do this:
+    # - set all of the pages ranks to (1-damping_factor)/N (for understanding this equation, look up the project question)
+    # - store all the equal starting out ranks in a dictionary
+    # - When calculating a new rank, check against the previous one in the dictionary 
+    # - then update if new rank > prev rank + 0.001
+
     print("==================================================\nIterative Debugging")
     all_pages =  set(corpus.keys())
-    former_probability = {}
-    current_probability = {}
-    print(corpus)
+    pages_completed = set() # Update this set as soon as you see a page with new rank < prev rank + 0.01
+    
+    # Set the general starting pagerank
+    page_probability = { page : (1 - damping_factor)/len(all_pages) for page in all_pages }
+    
+    # Recursively loop over each page setting a new page rank using the provided formula
+    while True:
+        for page in page_probability:
+            
+            pass
+        break
 
-    for page in all_pages:
-        former_probability[page] = 1/len(all_pages)
+    # former_probability = {}
+    # current_probability = {}
+    # print(corpus)
 
-    print(former_probability)
-    for _ in range(8):
-        for page in all_pages:
-            page_links = [link for link in corpus if page in corpus[link]]
-            current_probability[page] = round((
-                (1-damping_factor)/len(all_pages) + 
-                (damping_factor * sum([former_probability[probability]/len(corpus[probability]) for probability in page_links]))
-            ), 5)
+    # for page in all_pages:
+    #     former_probability[page] = 1- /len(all_pages)
 
-            print(page, page_links, current_probability, [former_probability[probability]/len(corpus[probability]) for probability in page_links], (1-damping_factor)/len(all_pages))
-            if (current_probability[page] - former_probability[page]) < 0.001:
-                former_probability.pop(page)
-            else:
-                former_probability[page] = current_probability[page]
+    # print(former_probability)
+    # for _ in range(8):
+    #     for page in all_pages:
+    #         page_links = [link for link in corpus if page in corpus[link]]
+    #         current_probability[page] = round((
+    #             (1-damping_factor)/len(all_pages) + 
+    #             (damping_factor * sum([former_probability[probability]/len(corpus[probability]) for probability in page_links]))
+    #         ), 5)
 
-        if not former_probability:
-            break
+    #         print(page, page_links, current_probability, [former_probability[probability]/len(corpus[probability]) for probability in page_links], (1-damping_factor)/len(all_pages))
+    #         if (current_probability[page] - former_probability[page]) < 0.001:
+    #             former_probability.pop(page)
+    #         else:
+    #             former_probability[page] = current_probability[page]
+
+    #     if not former_probability:
+    #         break
 
     #print(all_pages, "\n", current_probability)
 
