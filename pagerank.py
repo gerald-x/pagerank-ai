@@ -157,19 +157,46 @@ def iterate_pagerank(corpus, damping_factor):
     # - When calculating a new rank, check against the previous one in the dictionary 
     # - then update if new rank > prev rank + 0.001
 
-    print("==================================================\nIterative Debugging")
     all_pages =  set(corpus.keys())
+    all_pages_len = len(all_pages)
     pages_completed = set() # Update this set as soon as you see a page with new rank < prev rank + 0.01
     
-    # Set the general starting pagerank
-    page_probability = { page : (1 - damping_factor)/len(all_pages) for page in all_pages }
+    # Set the general starting pagerank for all pages
+    page_probability = { page : (1 - damping_factor)/all_pages_len for page in all_pages }
     
-    # Recursively loop over each page setting a new page rank using the provided formula
+    # Iteratively loop over each page setting a new page rank using the provided formula
     while True:
         for page in page_probability:
+            if page in pages_completed:
+                continue
+
+            current_page_probaility = (
+                ((1 - damping_factor)/all_pages_len) # First half of the formula
+                + 
+                damping_factor * sum([
+                    page_probability[corpus_page]/(
+                        len(corpus[corpus_page]) 
+                        if len(corpus[corpus_page]) !=  0 else 
+                        len(corpus.keys())
+                    )
+                    for corpus_page in corpus 
+                    if page in corpus[corpus_page] or len(corpus[corpus_page]) == 0
+                ]) 
+                # Second half of the formula
+                # The 'if' block in the list comprehension is to fulfil these conditions:
+                # - "...'corpus_page' ranges over all pages that link to 'page'..."
+                # -"A page that has no links at all should be interpreted as having one link for every page in the corpus (including itself)"
+            )
+
+            if current_page_probaility <= (page_probability[page] + 0.001):
+                pages_completed.add(page)
+            else:
+                page_probability[page] = current_page_probaility
             
-            pass
-        break
+        if pages_completed == all_pages:
+            break
+
+    return page_probability
 
     # former_probability = {}
     # current_probability = {}
@@ -196,10 +223,7 @@ def iterate_pagerank(corpus, damping_factor):
     #     if not former_probability:
     #         break
 
-    #print(all_pages, "\n", current_probability)
-
-    
-    raise NotImplementedError
+    # raise NotImplementedError
 
 
 if __name__ == "__main__":
