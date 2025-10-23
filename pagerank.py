@@ -124,15 +124,12 @@ def sample_pagerank(corpus, damping_factor, n):
     """
     
     pages = list(corpus.keys())
-    counter = {}
-    for page in pages:
-        counter[page] = 0
-    
+    counter = {page : 0 for page in pages}
+
     start_page = random.choice(pages)
     outer_links = transition_model(corpus, start_page, damping_factor)
     counter[start_page] += 1
 
-    print(start_page, outer_links)
     for _ in range(n-1):
         start_page = random.choices(list(outer_links.keys()), list(outer_links.values()), k=1)[0]
         outer_links = transition_model(corpus, start_page, damping_factor)
