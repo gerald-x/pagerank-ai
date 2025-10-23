@@ -50,47 +50,67 @@ def crawl(directory):
 
 def transition_model(corpus, page, damping_factor):
     """
-    Return a probability distribution over which page to visit next,
-    given a current page.
+        Return a probability distribution over which page to visit next,
+        given a current page.
 
-    With probability `damping_factor`, choose a link at random
-    linked to by `page`. With probability `1 - damping_factor`, choose
-    a link at random chosen from all pages in the corpus.
+        With probability `damping_factor`, choose a link at random
+        linked to by `page`. With probability `1 - damping_factor`, choose
+        a link at random chosen from all pages in the corpus.
     """
-    transition = {}
+    # initialize all the page probalities to zero
+    # Add the newly calculated probabiity accordingly
+    transition = {corpus_page: 0 for corpus_page in corpus}
     corpus_keys = corpus.keys()
+    
     try:
-        page_links = corpus[page]
+        page_links = set(corpus[page])
     except:
         raise Exception("Page not in dictionary")
     
-    selflink_check = len(page_links)-1 if page in page_links else len(page_links)
+    # "Duplicate links on the same page are treated as a single link, 
+    # and links from a page to itself are ignored as well"" 
+    # This is why self-links are removed below
+    if page in page_links:
+        page_links.discard(page)
     
-    if not page_links or not selflink_check:
-        probability = 1/len(corpus_keys)
-        for corpus_key in corpus_keys:
-            transition[corpus_key] = corpus_key
-        return transition
 
-    probability = damping_factor/selflink_check
+    # All links in the corpus page provided will share the damping factor probability equally
     for page_link in page_links:
-        if page == page_link:
-            continue 
-        transition[page_link] = probability
-        #corpus.pop(page_link)
-    
-    others_probability = round((1 - damping_factor)/(len(corpus_keys) - selflink_check + 1), 5) if \
-    page in page_links else round((1 - damping_factor)/(len(corpus_keys) - selflink_check) , 5)
-    
-    for corpus_key in corpus_keys:
-        if corpus_key == page or not corpus_key in page_links:
-            transition[corpus_key] = others_probability
-    
-    #for pages, other_links in corpus.items():
-    #    if pages in transition:
-    #        continue
+        page_probability = damping_factor/len(page_links)
+        transition[page_link] = transition[page_link] + page_probability
+
+    for corpus_page in transition:
+        page_probability = len(corpus_keys)/(1 - damping_factor)
+        transition[corpus_page] = transition[corpus_page] + page_probability
 
     return transition
+
+    # if not page_links:
+    #     probability = 1/len(corpus_keys)
+        
+    #     for corpus_key in corpus_keys:
+    #         transition[corpus_key] = corpus_key
+    #     return transition
+
+    # probability = damping_factor/selflink_check
+    # for page_link in page_links:
+    #     if page == page_link:
+    #         continue 
+    #     transition[page_link] = probability
+    #     #corpus.pop(page_link)
+    
+    # others_probability = round((1 - damping_factor)/(len(corpus_keys) - selflink_check + 1), 5) if \
+    # page in page_links else round((1 - damping_factor)/(len(corpus_keys) - selflink_check) , 5)
+    
+    # for corpus_key in corpus_keys:
+    #     if corpus_key == page or not corpus_key in page_links:
+    #         transition[corpus_key] = others_probability
+    
+    # #for pages, other_links in corpus.items():
+    # #    if pages in transition:
+    # #        continue
+
+    # return transition
 
 
 def sample_pagerank(corpus, damping_factor, n):
